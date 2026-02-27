@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jasperReport PUBLIC "-//JasperReports//DTD Report Design//EN"
+    "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports
+    http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+    name="MonthlySalesSummary"
+    pageWidth="595" pageHeight="842"
+    columnWidth="535" leftMargin="30" rightMargin="30"
+    topMargin="30" bottomMargin="30">
+
+    <parameter name="From_Date" class="java.lang.String"/>
+    <parameter name="To_Date"   class="java.lang.String"/>
+
+    <queryString>
+        <![CDATA[
+        SELECT
+            sale_date,
+            COUNT(sale_id)    AS transactions,
+            SUM(total)        AS revenue,
+            AVG(total)        AS avg_sale
+        FROM Sales
+        WHERE sale_date BETWEEN $P{From_Date} AND $P{To_Date}
+        GROUP BY sale_date
+        ORDER BY sale_date ASC
+        ]]>
+    </queryString>
+
+    <field name="sale_date"    class="java.lang.String"/>
+    <field name="transactions" class="java.lang.Long"/>
+    <field name="revenue"      class="java.math.BigDecimal"/>
+    <field name="avg_sale"     class="java.math.BigDecimal"/>
+
+    <variable name="TOTAL_REV" class="java.math.BigDecimal" calculation="Sum">
+        <variableExpression><![CDATA[$F{revenue}]]></variableExpression>
+    </variable>
+    <variable name="TOTAL_TXN" class="java.lang.Long" calculation="Sum">
+        <variableExpression><![CDATA[$F{transactions}]]></variableExpression>
+    </variable>
+
+    <title>
+        <band height="70">
+            <staticText>
+                <reportElement x="0" y="0" width="535" height="36"/>
+                <textElement textAlignment="Center">
+                    <font size="20" isBold="true" fontName="SansSerif"/>
+                </textElement>
+                <text><![CDATA[NexMart – Monthly Sales Summary]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="0" y="38" width="535" height="20"/>
+                <textElement textAlignment="Center">
+                    <font size="11" fontName="SansSerif"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Period: " + $P{From_Date} + "  to  " + $P{To_Date}]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+
+    <columnHeader>
+        <band height="26">
+            <staticText>
+                <reportElement x="0"   y="2" width="130" height="22" backcolor="#107C5A" mode="Opaque"/>
+                <textElement><font isBold="true" size="12" fontName="SansSerif"/></textElement>
+                <text><![CDATA[Date]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="130" y="2" width="120" height="22" backcolor="#107C5A" mode="Opaque"/>
+                <textElement textAlignment="Right"><font isBold="true" size="12" fontName="SansSerif"/></textElement>
+                <text><![CDATA[Transactions]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="250" y="2" width="145" height="22" backcolor="#107C5A" mode="Opaque"/>
+                <textElement textAlignment="Right"><font isBold="true" size="12" fontName="SansSerif"/></textElement>
+                <text><![CDATA[Revenue (LKR)]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="395" y="2" width="140" height="22" backcolor="#107C5A" mode="Opaque"/>
+                <textElement textAlignment="Right"><font isBold="true" size="12" fontName="SansSerif"/></textElement>
+                <text><![CDATA[Avg. Sale (LKR)]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <detail>
+        <band height="24">
+            <textField>
+                <reportElement x="0"   y="2" width="130" height="20"/>
+                <textElement><font size="11" fontName="SansSerif"/></textElement>
+                <textFieldExpression><![CDATA[$F{sale_date}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="130" y="2" width="120" height="20"/>
+                <textElement textAlignment="Right"><font size="11" fontName="SansSerif"/></textElement>
+                <textFieldExpression><![CDATA[$F{transactions}]]></textFieldExpression>
+            </textField>
+            <textField pattern="###,##0.00">
+                <reportElement x="250" y="2" width="145" height="20"/>
+                <textElement textAlignment="Right"><font size="11" fontName="SansSerif"/></textElement>
+                <textFieldExpression><![CDATA[$F{revenue}]]></textFieldExpression>
+            </textField>
+            <textField pattern="###,##0.00">
+                <reportElement x="395" y="2" width="140" height="20"/>
+                <textElement textAlignment="Right"><font size="11" fontName="SansSerif"/></textElement>
+                <textFieldExpression><![CDATA[$F{avg_sale}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <summary>
+        <band height="40">
+            <line>
+                <reportElement x="0" y="4" width="535" height="1"/>
+                <graphicElement><pen lineWidth="1.0"/></graphicElement>
+            </line>
+            <staticText>
+                <reportElement x="0" y="10" width="250" height="22"/>
+                <textElement><font isBold="true" size="12" fontName="SansSerif"/></textElement>
+                <text><![CDATA[Total:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="130" y="10" width="120" height="22"/>
+                <textElement textAlignment="Right"><font isBold="true" size="12" fontName="SansSerif"/></textElement>
+                <textFieldExpression><![CDATA[$V{TOTAL_TXN}]]></textFieldExpression>
+            </textField>
+            <textField pattern="###,##0.00">
+                <reportElement x="250" y="10" width="145" height="22"/>
+                <textElement textAlignment="Right"><font isBold="true" size="12" fontName="SansSerif"/></textElement>
+                <textFieldExpression><![CDATA[$V{TOTAL_REV}]]></textFieldExpression>
+            </textField>
+        </band>
+    </summary>
+</jasperReport>
